@@ -1,0 +1,7 @@
+# Additional files/dirs to ignore.
+.gradle/
+.idea/
+build/
+gradlew.bat
+
+# Additional files/dirs to unignore.
