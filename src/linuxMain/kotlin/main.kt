@@ -6,10 +6,14 @@ import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.StableRef
 import kotlinx.cinterop.staticCFunction
 import org.guivista.core.Application
+import org.guivista.core.window.AppWindow
+
+private lateinit var mainWin: AppWindow
 
 fun main() {
     val data = DummyData()
     Application("org.example.basicgui").use {
+        mainWin = AppWindow(this)
         connectActivateSignal(staticCFunction(::activateApplication), data.stableRef.asCPointer())
         connectStartupSignal(staticCFunction(::startupApplication), data.stableRef.asCPointer())
         connectShutdownSignal(staticCFunction(::shutdownApplication), data.stableRef.asCPointer())
@@ -21,6 +25,11 @@ fun main() {
 @Suppress("UNUSED_PARAMETER")
 private fun activateApplication(app: CPointer<GApplication>, userData: gpointer) {
     println("Activating application...")
+    mainWin.createUi {
+        title = "Basic GUI"
+        changeDefaultSize(800, 600)
+        visible = true
+    }
 }
 
 @Suppress("UNUSED_PARAMETER")
