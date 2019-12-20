@@ -1,6 +1,7 @@
 package org.example.basic_gui
 
 import gtk3.GtkButton
+import gtk3.GtkOrientation
 import gtk3.gpointer
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.StableRef
@@ -9,37 +10,53 @@ import kotlinx.cinterop.staticCFunction
 import org.guivista.core.Application
 import org.guivista.core.layout.Box
 import org.guivista.core.layout.Container
+import org.guivista.core.layout.boxLayout
+import org.guivista.core.layout.entryWidget
 import org.guivista.core.widget.Button
-import org.guivista.core.widget.Label
+import org.guivista.core.widget.labelWidget
 import org.guivista.core.window.AppWindow
 
 internal class MainWindow(app: Application) : AppWindow(app) {
-    private var counter = 0
-    private val counterLbl by lazy { createCounterLbl() }
+    private val nameEntry by lazy { createNameEntry() }
+    private val greetingLbl by lazy { createGreetingLbl() }
     val stableRef = StableRef.create(this)
 
-    override fun createMainLayout(): Container? = Box().apply {
-        val margin = 5
-        changeMargins(margin, margin, margin, margin)
+    private fun createGreetingLbl() = labelWidget("") {}
+
+    override fun createMainLayout(): Container? = Box(orientation = GtkOrientation.GTK_ORIENTATION_VERTICAL).apply {
+        spacing = 20
+        changeAllMargins(5)
+        prependChild(createInputLayout())
+        prependChild(greetingLbl)
+    }
+
+    private fun createInputLayout() = boxLayout {
         spacing = 5
-        prependChild(createIncrementBtn())
-        prependChild(counterLbl)
+        prependChild(nameEntry)
+        prependChild(createGreetingBtn())
     }
 
-    private fun createCounterLbl() = Label("Counter: 0")
-
-    private fun createIncrementBtn() = Button().apply {
-        label = "Increment Counter"
-        connectClickedSignal(staticCFunction(::incrementBtnClicked), stableRef.asCPointer())
+    private fun createNameEntry() = entryWidget {
+        text = ""
+        placeholderText = "Enter name"
     }
 
-    fun incrementCounter() {
-        counter++
-        counterLbl.text = "Counter: $counter"
+    private fun createGreetingBtn() = Button().apply {
+        label = "Display Greeting"
+        connectClickedSignal(staticCFunction(::greetingBtnClicked), stableRef.asCPointer())
+    }
+
+    fun updateGreeting() {
+        greetingLbl.text = "Hello ${nameEntry.text}! :)"
+        nameEntry.text = ""
+    }
+
+    override fun resetFocus() {
+        // TODO: Workaround Entry.placeholderText bug that occurs when the Entry (nameEntry) has focus.
     }
 }
 
-private fun incrementBtnClicked(@Suppress("UNUSED_PARAMETER") btn: CPointer<GtkButton>, userData: gpointer) {
+private fun greetingBtnClicked(@Suppress("UNUSED_PARAMETER") btn: CPointer<GtkButton>, userData: gpointer) {
     val mainWin = userData.asStableRef<MainWindow>().get()
-    mainWin.incrementCounter()
+    mainWin.updateGreeting()
 }
