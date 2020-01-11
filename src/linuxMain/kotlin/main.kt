@@ -1,16 +1,16 @@
 package org.example.basic_gui
 
+import glib2.gpointer
 import gtk3.GApplication
-import gtk3.gpointer
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.staticCFunction
-import org.guivista.core.Application
-import org.guivista.core.fetchEmptyDataPointer
+import org.guiVista.core.fetchEmptyDataPointer
+import org.guiVista.gui.Application
 
 private lateinit var mainWin: MainWindow
 
 fun main() {
-    Application("org.example.basicgui").use {
+    Application(id = "org.example.basicgui").use {
         mainWin = MainWindow(this)
         connectActivateSignal(staticCFunction(::activateApplication), fetchEmptyDataPointer())
         println("Application Status: ${run()}")

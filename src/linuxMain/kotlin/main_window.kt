@@ -1,33 +1,32 @@
 package org.example.basic_gui
 
+import glib2.gpointer
 import gtk3.GtkButton
 import gtk3.GtkOrientation
-import gtk3.gpointer
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.StableRef
 import kotlinx.cinterop.asStableRef
 import kotlinx.cinterop.staticCFunction
-import org.guivista.core.Application
-import org.guivista.core.layout.Box
-import org.guivista.core.layout.Container
-import org.guivista.core.layout.boxLayout
-import org.guivista.core.layout.entryWidget
-import org.guivista.core.widget.Button
-import org.guivista.core.widget.labelWidget
-import org.guivista.core.window.AppWindow
+import org.guiVista.gui.Application
+import org.guiVista.gui.layout.Container
+import org.guiVista.gui.layout.boxLayout
+import org.guiVista.gui.widget.button.buttonWidget
+import org.guiVista.gui.widget.dataEntry.entryWidget
+import org.guiVista.gui.widget.display.labelWidget
+import org.guiVista.gui.window.AppWindow
 
 internal class MainWindow(app: Application) : AppWindow(app) {
     private val nameEntry by lazy { createNameEntry() }
     private val greetingLbl by lazy { createGreetingLbl() }
     val stableRef = StableRef.create(this)
 
-    private fun createGreetingLbl() = labelWidget("") {}
+    private fun createGreetingLbl() = labelWidget(text = "") {}
 
-    override fun createMainLayout(): Container? = Box(orientation = GtkOrientation.GTK_ORIENTATION_VERTICAL).apply {
+    override fun createMainLayout(): Container? = boxLayout(orientation = GtkOrientation.GTK_ORIENTATION_VERTICAL) {
         spacing = 20
         changeAllMargins(5)
-        prependChild(createInputLayout())
-        prependChild(greetingLbl)
+        this += createInputLayout()
+        this += greetingLbl
     }
 
     private fun createInputLayout() = boxLayout {
@@ -41,8 +40,7 @@ internal class MainWindow(app: Application) : AppWindow(app) {
         placeholderText = "Enter name"
     }
 
-    private fun createGreetingBtn() = Button().apply {
-        label = "Display Greeting"
+    private fun createGreetingBtn() = buttonWidget(label = "Display Greeting") {
         connectClickedSignal(staticCFunction(::greetingBtnClicked), stableRef.asCPointer())
     }
 
@@ -56,7 +54,7 @@ internal class MainWindow(app: Application) : AppWindow(app) {
     }
 }
 
-private fun greetingBtnClicked(@Suppress("UNUSED_PARAMETER") btn: CPointer<GtkButton>, userData: gpointer) {
+private fun greetingBtnClicked(@Suppress("UNUSED_PARAMETER") btn: CPointer<GtkButton>?, userData: gpointer) {
     val mainWin = userData.asStableRef<MainWindow>().get()
     mainWin.updateGreeting()
 }
