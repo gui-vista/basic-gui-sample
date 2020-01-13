@@ -7,7 +7,7 @@ import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.StableRef
 import kotlinx.cinterop.asStableRef
 import kotlinx.cinterop.staticCFunction
-import org.guiVista.gui.Application
+import org.guiVista.gui.GuiApplication
 import org.guiVista.gui.layout.Container
 import org.guiVista.gui.layout.boxLayout
 import org.guiVista.gui.widget.button.buttonWidget
@@ -15,7 +15,7 @@ import org.guiVista.gui.widget.dataEntry.entryWidget
 import org.guiVista.gui.widget.display.labelWidget
 import org.guiVista.gui.window.AppWindow
 
-internal class MainWindow(app: Application) : AppWindow(app) {
+internal class MainWindow(app: GuiApplication) : AppWindow(app) {
     private val nameEntry by lazy { createNameEntry() }
     private val greetingLbl by lazy { createGreetingLbl() }
     val stableRef = StableRef.create(this)
