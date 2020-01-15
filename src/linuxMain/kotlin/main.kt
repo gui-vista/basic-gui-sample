@@ -10,10 +10,13 @@ import org.guiVista.gui.GuiApplication
 private lateinit var mainWin: MainWindow
 
 fun main() {
+    // Creation and setup of the application takes place in this function.
     GuiApplication(id = "org.example.basicgui").use {
         mainWin = MainWindow(this)
         connectActivateSignal(staticCFunction(::activateApplication), fetchEmptyDataPointer())
+        // Run the application, and print out the application status.
         println("Application Status: ${run()}")
+        // Good practise to clean up ALL existing references BEFORE exiting the program.
         mainWin.stableRef.dispose()
     }
 }
@@ -21,6 +24,7 @@ fun main() {
 @Suppress("UNUSED_PARAMETER")
 private fun activateApplication(app: CPointer<GApplication>, userData: gpointer) {
     println("Activating application...")
+    // The default application UI is created in this function.
     mainWin.createUi {
         title = "Basic GUI"
         visible = true
