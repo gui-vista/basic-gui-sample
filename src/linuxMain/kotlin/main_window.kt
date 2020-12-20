@@ -1,12 +1,12 @@
 package org.example.basic_gui
 
 import glib2.gpointer
-import gtk3.GtkButton
-import gtk3.GtkOrientation
+import gtk3.*
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.StableRef
 import kotlinx.cinterop.asStableRef
 import kotlinx.cinterop.staticCFunction
+import org.guiVista.core.connectGSignal
 import org.guiVista.gui.GuiApplication
 import org.guiVista.gui.layout.Container
 import org.guiVista.gui.layout.boxLayout
@@ -24,7 +24,7 @@ internal class MainWindow(app: GuiApplication) : AppWindow(app) {
 
     private fun createGreetingLbl() = labelWidget(text = "") {}
 
-    override fun createMainLayout(): Container? = boxLayout(orientation = GtkOrientation.GTK_ORIENTATION_VERTICAL) {
+    override fun createMainLayout(): Container = boxLayout(orientation = GtkOrientation.GTK_ORIENTATION_VERTICAL) {
         spacing = 20
         changeAllMargins(5)
         prependChild(createInputLayout())
@@ -40,6 +40,8 @@ internal class MainWindow(app: GuiApplication) : AppWindow(app) {
     private fun createNameEntry() = entryWidget {
         text = ""
         placeholderText = "Enter name"
+        connectGSignal(obj = gtkEntryPtr, signal = "activate", slot = staticCFunction(::handleDefaultAction),
+            data = stableRef.asCPointer())
     }
 
     private fun createGreetingBtn() = buttonWidget(label = "Display Greeting") {
@@ -51,11 +53,18 @@ internal class MainWindow(app: GuiApplication) : AppWindow(app) {
     fun updateGreeting() {
         greetingLbl.text = "Hello ${nameEntry.text}! :)"
         nameEntry.text = ""
+        resetFocus()
     }
 
     override fun resetFocus() {
         // TODO: Workaround Entry.placeholderText bug that occurs when the Entry (nameEntry) has focus.
+        nameEntry.grabFocus()
     }
+}
+
+private fun handleDefaultAction(@Suppress("UNUSED_PARAMETER") widget: CPointer<GtkWidget>, userData: gpointer) {
+    val mainWin = userData.asStableRef<MainWindow>().get()
+    mainWin.updateGreeting()
 }
 
 private fun greetingBtnClicked(@Suppress("UNUSED_PARAMETER") btn: CPointer<GtkButton>?, userData: gpointer) {
