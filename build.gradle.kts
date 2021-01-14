@@ -22,7 +22,7 @@ kotlin {
         }
         compilations.getByName("main") {
             dependencies {
-                val guiVistaVer = "0.3.0"
+                val guiVistaVer = "0.3.3"
                 cinterops.create("glib2")
                 cinterops.create("gio2")
                 cinterops.create("gtk3")
